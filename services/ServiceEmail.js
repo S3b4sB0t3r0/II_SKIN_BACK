@@ -1,7 +1,16 @@
-const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+const nodemailer = require('nodemailer');
 
-const FROM = 'II SKIN SAS <onboarding@resend.dev>';
+const transporter = nodemailer.createTransport({
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_USER,
+    pass: process.env.BREVO_PASS,
+  },
+});
+
+const FROM = '"II SKIN SAS" <iiskincolombia@gmail.com>';
 
 // ─── Shared header & footer HTML snippets ────────────────────
 const emailHeader = `
@@ -75,7 +84,7 @@ const sendPasswordResetEmail = async (to, token, expiresAt) => {
     </div>
   `;
 
-  await resend.emails.send({ from: FROM, to, subject: '🔐 Recuperación de contraseña — II SKIN SAS', html });
+  await transporter.sendMail({ from: FROM, to, subject: '🔐 Recuperación de contraseña — II SKIN SAS', html });
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -120,7 +129,7 @@ const sendContactNotification = async (contactData) => {
   `;
 
   try {
-    await resend.emails.send({ from: FROM, to: ['iiskincolombia@gmail.com'], subject: `✉ Nuevo contacto de ${name} — II SKIN SAS`, html });
+    await transporter.sendMail({ from: FROM, to: `${email}, iiskincolombia@gmail.com`, subject: `✉ Nuevo contacto de ${name} — II SKIN SAS`, html });
   } catch (error) {
     console.error('Error enviando correo de contacto:', error);
     throw error;
@@ -169,7 +178,7 @@ const sendReplyToContact = async (contactData, replyMessage) => {
   `;
 
   try {
-    await resend.emails.send({ from: FROM, to: email, subject: `💬 Respuesta de II SKIN SAS — Hola ${name}`, html });
+    await transporter.sendMail({ from: FROM, to: email, subject: `💬 Respuesta de II SKIN SAS — Hola ${name}`, html });
   } catch (error) {
     console.error('Error enviando respuesta a contacto:', error);
     throw error;
@@ -223,7 +232,7 @@ const sendWelcomeEmail = async (to, name) => {
     </div>
   `;
 
-  await resend.emails.send({ from: FROM, to, subject: `🎽 ¡Bienvenido/a a II SKIN SAS, ${name}!`, html });
+  await transporter.sendMail({ from: FROM, to, subject: `🎽 ¡Bienvenido/a a II SKIN SAS, ${name}!`, html });
 };
 
 // ─────────────────────────────────────────────────────────────
